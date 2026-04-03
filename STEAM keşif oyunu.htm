@@ -1,0 +1,1188 @@
+<!doctype html>
+<html lang="tr" class="h-full">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STEAM Keşif Oyunu</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+  <style>
+    * {
+      font-family: 'Nunito', sans-serif;
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    @keyframes pulse-glow {
+
+      0%,
+      100% {
+        box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+      }
+
+      50% {
+        box-shadow: 0 0 40px rgba(99, 102, 241, 0.8);
+      }
+    }
+
+    @keyframes slide-up {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes confetti {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateY(-100px) rotate(720deg);
+        opacity: 0;
+      }
+    }
+
+    .float-animation {
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .pulse-glow {
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    .slide-up {
+      animation: slide-up 0.5s ease-out forwards;
+    }
+
+    .discipline-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .discipline-card:hover {
+      transform: translateY(-8px) scale(1.02);
+    }
+
+    .progress-fill {
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      transition: all 0.3s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .touch-target {
+      min-height: 44px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+    }
+
+    .question-option {
+      transition: all 0.2s ease;
+    }
+
+    .question-option:hover:not(:disabled) {
+      transform: scale(1.02);
+      border-color: #6366f1;
+    }
+
+    .question-option.correct {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+      color: white !important;
+      border-color: #10b981 !important;
+    }
+
+    .question-option.incorrect {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+      color: white !important;
+      border-color: #ef4444 !important;
+    }
+
+    .badge {
+      animation: slide-up 0.5s ease-out forwards;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      animation: confetti 1s ease-out forwards;
+    }
+  </style>
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+
+<body class="h-full bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-800 overflow-auto">
+  <div id="app" class="min-h-full w-full">
+    <!-- Ana Ekran -->
+    <div id="home-screen" class="min-h-full flex flex-col items-center justify-center p-6">
+      <div class="text-center mb-8 slide-up">
+        <div class="mb-4 float-animation flex justify-center">
+          <div class="w-32 h-32 md:w-40 md:h-40 bg-white/90 rounded-[2rem] flex items-center justify-center p-2 shadow-2xl overflow-hidden border-4 border-white/50">
+            <img src="6.png" alt="Oyun Logosu" class="w-full h-full object-contain mix-blend-multiply drop-shadow-md">
+          </div>
+        </div>
+        <h1 id="main-title" class="text-4xl md:text-5xl font-extrabold text-white mb-4 drop-shadow-lg">STEAM Keşif Oyunu
+        </h1>
+        <p id="welcome-text" class="text-xl text-purple-200">STEAM dünyasına hoş geldin! Karşına çıkacak 5 farklı disiplindeki soruları yanıtla, rozetleri topla ve STEAM ustası ol.</p>
+      </div>
+      <div class="glass-card rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl slide-up" style="animation-delay: 0.2s;">
+        <div class="mb-6">
+          <label for="player-name" class="block text-gray-700 font-semibold mb-3 text-base md:text-lg"> <i
+              data-lucide="user" class="inline w-5 h-5 mr-2"></i>Adın ne, kaşif? </label> <input type="text"
+            id="player-name" placeholder="Adını yaz..."
+            class="w-full px-4 py-3 rounded-xl border-2 border-purple-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200 outline-none text-base md:text-lg transition-all">
+        </div><button id="start-btn"
+          class="btn-primary w-full py-4 md:py-5 rounded-xl text-white font-bold text-base md:text-lg flex items-center justify-center gap-2 touch-target">
+          <i data-lucide="play" class="w-5 h-5 md:w-6 md:h-6"></i> Maceraya Başla! </button>
+        <div id="continue-section" class="hidden mt-4">
+          <button id="continue-btn"
+            class="w-full py-4 md:py-5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold flex items-center justify-center gap-2 transition-all touch-target">
+            <i data-lucide="arrow-right" class="w-5 h-5 md:w-6 md:h-6"></i> Kaldığın Yerden Devam Et </button>
+        </div>
+        <div class="mt-4">
+          <button id="how-to-play-btn"
+            class="w-full py-3 md:py-4 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center gap-2 transition-all touch-target border-2 border-indigo-200">
+            <i data-lucide="help-circle" class="w-5 h-5 md:w-6 md:h-6"></i> Nasıl Oynanır? </button>
+        </div>
+      </div>
+      <div class="mt-8 flex gap-4 text-white/70 text-sm">
+        <span class="flex items-center gap-1"><i data-lucide="trophy" class="w-4 h-4"></i> 5 Disiplin</span> <span
+          class="flex items-center gap-1"><i data-lucide="star" class="w-4 h-4"></i> 25+ Soru</span> <span
+          class="flex items-center gap-1"><i data-lucide="award" class="w-4 h-4"></i> Rozetler</span>
+      </div>
+    </div><!-- Oyun Ekranı -->
+    <div id="game-screen" class="hidden min-h-full flex flex-col p-3 md:p-6">
+      <!-- Üst Bar -->
+      <div class="glass-card rounded-2xl p-4 mb-6 flex flex-wrap items-center justify-between gap-3 md:gap-4">
+        <div class="flex items-center gap-2 md:gap-3">
+          <div
+            class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm md:text-lg">
+            <span id="player-initial">K</span>
+          </div>
+          <div>
+            <p class="font-bold text-gray-800 text-sm md:text-base" id="player-display">Kaşif</p>
+            <p class="text-xs md:text-sm text-gray-500">Seviye: <span id="current-level"
+                class="text-indigo-600 font-semibold">1</span></p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 md:gap-6">
+          <div class="text-center">
+            <p class="text-lg md:text-2xl font-bold text-indigo-600" id="score-display">0</p>
+            <p class="text-xs text-gray-500">Puan</p>
+          </div>
+          <div class="text-center">
+            <p class="text-lg md:text-2xl font-bold text-emerald-600" id="badges-count">0</p>
+            <p class="text-xs text-gray-500">Rozet</p>
+          </div>
+        </div><button id="home-btn" class="p-2 rounded-lg hover:bg-gray-100 transition-colors touch-target"
+          title="Ana Menü"> <i data-lucide="home" class="w-5 h-5 md:w-6 md:h-6 text-gray-600"></i> </button>
+      </div><!-- İlerleme Çubuğu -->
+      <div class="glass-card rounded-xl p-3 md:p-4 mb-4 md:mb-6">
+        <div class="flex justify-between text-xs md:text-sm text-gray-600 mb-2">
+          <span>Genel İlerleme</span> <span id="progress-text">0/5 Disiplin</span>
+        </div>
+        <div class="h-2 md:h-3 bg-gray-200 rounded-full overflow-hidden">
+          <div id="progress-bar"
+            class="h-full progress-fill bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full"
+            style="width: 0%;"></div>
+        </div>
+      </div><!-- Ana İçerik Alanı -->
+      <div id="game-content" class="flex-1 w-full">
+        <!-- Disiplin Seçim Ekranı -->
+        <div id="discipline-select" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+        </div><!-- Soru Ekranı -->
+        <div id="question-area" class="hidden">
+          <div class="glass-card rounded-2xl p-4 md:p-8 max-w-3xl mx-auto w-full">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-6">
+              <span id="question-discipline"
+                class="px-3 md:px-4 py-2 rounded-full bg-indigo-100 text-indigo-700 font-semibold text-xs md:text-sm"></span>
+              <span id="question-counter" class="text-gray-500 font-medium text-xs md:text-sm"></span>
+            </div>
+            <div id="question-type-badge" class="mb-4 inline-block px-3 py-1 rounded-lg text-xs font-semibold"></div>
+            <h2 id="question-text" class="text-lg md:text-2xl font-bold text-gray-800 mb-6 md:mb-8"></h2>
+            <div id="question-options" class="space-y-2 md:space-y-3 mb-6"></div>
+            <div id="feedback-area" class="hidden mb-4 md:mb-6 p-3 md:p-4 rounded-xl text-sm md:text-base">
+              <p id="feedback-text" class="font-semibold"></p>
+              <p id="feedback-explanation" class="text-xs md:text-sm mt-2 opacity-90"></p>
+            </div>
+            <div id="question-actions" class="flex flex-col sm:flex-row gap-2 md:gap-4">
+              <button id="next-question-btn"
+                class="hidden btn-primary flex-1 py-3 md:py-4 rounded-xl text-white font-semibold text-sm md:text-base flex items-center justify-center gap-2 touch-target">
+                Sonraki Soru <i data-lucide="arrow-right" class="w-4 h-4 md:w-5 md:h-5"></i> </button> <button
+                id="back-to-disciplines-btn"
+                class="hidden flex-1 py-3 md:py-4 rounded-xl bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold text-sm md:text-base transition-colors touch-target">
+                Disiplinlere Dön </button>
+            </div>
+          </div>
+        </div><!-- Disiplin Tamamlama Ekranı -->
+        <div id="completion-area" class="hidden">
+          <div class="glass-card rounded-2xl p-8 max-w-lg mx-auto text-center">
+            <div id="confetti-container" class="relative h-20"></div>
+            <div class="text-6xl mb-4" id="completion-emoji">
+              🎉
+            </div>
+            <h2 id="completion-title" class="text-2xl font-bold text-gray-800 mb-2"></h2>
+            <p id="completion-message" class="text-gray-600 mb-6"></p>
+            <div class="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-4 mb-6">
+              <p class="text-sm text-gray-600 mb-2">Kazanılan Rozet</p>
+              <div id="earned-badge" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow-md">
+                <span class="text-2xl" id="badge-emoji"></span> <span class="font-bold text-gray-800"
+                  id="badge-name"></span>
+              </div>
+            </div>
+            <div class="flex gap-4">
+              <button id="continue-exploring-btn" class="btn-primary flex-1 py-3 rounded-xl text-white font-semibold">
+                Keşfe Devam Et </button>
+            </div>
+          </div>
+        </div><!-- Final Ekranı -->
+        <div id="final-area" class="hidden">
+          <div class="glass-card rounded-2xl p-8 max-w-2xl mx-auto text-center">
+            <div class="mb-8 flex justify-center float-animation">
+              <div class="w-48 h-48 bg-white/90 rounded-[3rem] flex items-center justify-center shadow-2xl p-4 border-8 border-yellow-100">
+                <img src="6.png" class="w-full h-full object-contain mix-blend-multiply drop-shadow-lg">
+              </div>
+            </div>
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Tebrikler, STEAM Ustası!</h2>
+            <p class="text-gray-600 mb-8">Tüm disiplinleri başarıyla tamamladın ve STEAM'in ne kadar güçlü bir yaklaşım
+              olduğunu öğrendin!</p>
+            <div class="grid grid-cols-5 gap-4 mb-8">
+              <div class="bg-blue-100 rounded-xl p-3 text-center">
+                <div class="text-3xl mb-1">
+                  🔬
+                </div>
+                <p class="text-xs font-semibold text-blue-700">Science (Bilim)</p>
+              </div>
+              <div class="bg-green-100 rounded-xl p-3 text-center">
+                <div class="text-3xl mb-1">
+                  💻
+                </div>
+                <p class="text-xs font-semibold text-green-700">Technology (Teknoloji)</p>
+              </div>
+              <div class="bg-yellow-100 rounded-xl p-3 text-center">
+                <div class="text-3xl mb-1">
+                  ⚙️
+                </div>
+                <p class="text-xs font-semibold text-yellow-700">Engineering (Mühendislik)</p>
+              </div>
+              <div class="bg-pink-100 rounded-xl p-3 text-center">
+                <div class="text-3xl mb-1">
+                  🎨
+                </div>
+                <p class="text-xs font-semibold text-pink-700">Arts (Sanat)</p>
+              </div>
+              <div class="bg-purple-100 rounded-xl p-3 text-center">
+                <div class="text-3xl mb-1">
+                  🔢
+                </div>
+                <p class="text-xs font-semibold text-purple-700">Mathematics (Matematik)</p>
+              </div>
+            </div>
+            <div class="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-6 mb-8">
+              <p class="text-lg font-bold text-gray-800 mb-2">Final Skorun</p>
+              <p class="text-4xl font-extrabold text-indigo-600" id="final-score">0</p>
+              <p class="text-gray-500 mt-2">puan</p>
+            </div>
+            <div id="all-badges" class="flex flex-wrap justify-center gap-3 mb-8"></div>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+              <button id="restart-btn" class="btn-primary flex-1 px-8 py-3 rounded-xl text-white font-semibold"> Yeni
+                Maceraya Başla </button>
+              <button id="twin-btn"
+                class="bg-white border-2 border-indigo-500 text-indigo-600 hover:bg-indigo-50 flex-1 px-8 py-3 rounded-xl font-semibold transition-all">
+                Twin Science'ı Keşfet </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nasıl Oynanır Modal -->
+    <div id="how-to-play-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 hidden opacity-0 transition-opacity duration-300">
+      <div class="glass-card rounded-3xl w-full max-w-lg p-6 md:p-8 transform scale-95 transition-transform duration-300 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+        <button id="close-modal-btn" class="absolute top-4 right-4 p-2 text-gray-500 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors touch-target">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+        <h2 class="text-2xl font-bold text-indigo-800 mb-6 flex items-center gap-2">
+          <i data-lucide="help-circle" class="w-6 h-6 text-indigo-600"></i> Nasıl Oynanır?
+        </h2>
+        <div class="space-y-4 text-gray-700 text-sm md:text-base">
+          <p><strong>Hoşgeldin Kaşif!</strong> STEAM (Bilim, Teknoloji, Mühendislik, Sanat ve Matematik) dünyasında harika bir maceraya çıkmaya hazır mısın?</p>
+          <ul class="list-disc pl-5 space-y-3">
+            <li><strong>Disiplin Seçimi:</strong> Karşına çıkan disiplinler menüsünden, merak ettiğin STEAM disiplinini seçmelisin.</li>
+            <li><strong>Soruları Yanıtla:</strong> Karşına her disiplinden farklı tipte sorular çıkacak. Soruları dikkatlice oku ve en doğru seçeneği işaretle.</li>
+            <li><strong>Puan Kazan:</strong> Doğru yanıtladığın her soru için puan kazanırsın. Daha zor sorular daha fazla puan getirir!</li>
+            <li><strong>Rozetleri Topla:</strong> Bir disipline ait ilerlemeyi başarıyla tamamladığında o disipline özel bir rozet kazansın.</li>
+            <li><strong>Nihai Hedef:</strong> Tüm 5 disiplin rozetini toplayıp <strong>STEAM Ustası</strong> ünvanını elde et!</li>
+          </ul>
+          <div class="mt-6 p-4 bg-indigo-50 rounded-xl border border-indigo-100">
+            <p class="text-indigo-800 text-center font-semibold">Hazırsan adını gir ve maceraya başla!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rozet Bildirim Toast -->
+    <div id="toast"
+      class="fixed bottom-6 right-6 transform translate-y-full opacity-0 transition-all duration-500 z-50">
+      <div class="glass-card rounded-xl p-4 shadow-2xl flex items-center gap-3 border-l-4 border-indigo-500">
+        <div class="text-3xl" id="toast-icon">
+          🎖️
+        </div>
+        <div>
+          <p class="font-bold text-gray-800" id="toast-title">Yeni Rozet!</p>
+          <p class="text-sm text-gray-600" id="toast-message"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Cevapları karıştır ve eşit dağıt
+    function shuffleOptions(question) {
+      const optionsWithIndices = question.options.map((opt, idx) => ({ opt, originalIdx: idx }));
+      const shuffled = optionsWithIndices.sort(() => Math.random() - 0.5);
+
+      // Yeni correct index'i bul
+      const newCorrectIndex = shuffled.findIndex(item => item.originalIdx === question.correct);
+
+      return {
+        options: shuffled.map(item => item.opt),
+        correct: newCorrectIndex
+      };
+    }
+
+    // STEAM Disiplinleri ve İçerikleri
+    const steamDisciplines = {
+      science: {
+        id: 'science',
+        name: 'Bilim (Science)',
+        shortName: 'Bilim',
+        letter: 'S',
+        emoji: '🔬',
+        color: 'blue',
+        gradient: 'from-blue-400 to-blue-600',
+        bgLight: 'bg-blue-50',
+        textColor: 'text-blue-700',
+        description: 'Doğayı ve evreni anlamak için yapılan sistematik çalışmalar.',
+        subComponents: ['Fizik', 'Kimya', 'Biyoloji', 'Astronomi', 'Çevre Bilimi'],
+        badge: { name: 'Bilim İnsanı', emoji: '🔬' },
+        questions: [
+          {
+            type: 'tanımlama',
+            typeLabel: '📖 Tanımlama',
+            typeColor: 'bg-blue-100 text-blue-700',
+            question: 'STEAM\'deki "S" harfi hangi disiplini temsil eder?',
+            options: ['Sanat (Arts)', 'Bilim (Science)', 'Spor (Sports)', 'Sosyoloji (Sociology)'],
+            correct: 1,
+            explanation: 'S harfi İngilizce "Science" yani Bilim anlamına gelir. Bilim, doğayı ve evreni anlamak için yapılan sistematik çalışmalardır.'
+          },
+          {
+            type: '5N1K',
+            typeLabel: '❓ 5N1K Sorusu',
+            typeColor: 'bg-green-100 text-green-700',
+            question: 'Bilim insanları NEDEN deney yapar?',
+            options: ['Zaman geçirmek için', 'Hipotezlerini test etmek için', 'Sadece para kazanmak için', 'Okul ödevlerini yapmak için'],
+            correct: 1,
+            explanation: 'Bilim insanları hipotezlerini (tahminlerini) test etmek ve doğrulamak için deneyler yapar. Bu bilimsel yöntemin temel adımlarından biridir.'
+          },
+          {
+            type: 'bilgi_toplama',
+            typeLabel: '📚 Bilgi Toplama',
+            typeColor: 'bg-purple-100 text-purple-700',
+            question: 'Aşağıdakilerden hangisi bilimin alt bileşenlerinden biri DEĞİLDİR?',
+            options: ['Fizik', 'Kimya', 'Resim', 'Biyoloji'],
+            correct: 2,
+            explanation: 'Resim bir sanat dalıdır. Bilimin alt bileşenleri arasında fizik, kimya, biyoloji, astronomi ve çevre bilimi yer alır.'
+          },
+          {
+            type: 'değerlendirme',
+            typeLabel: '⚖️ Değerlendirme',
+            typeColor: 'bg-yellow-100 text-yellow-700',
+            question: '"Dünya düzdür" ifadesi bilimsel olarak doğru mudur?',
+            options: ['Hayır, Dünya geoid şeklindedir', 'Kesin kanıtlanmış bir bilgidir', 'Bilim insanları karar veremedi', 'Evet, eskiden bilinen gerçektir'],
+            correct: 0,
+            explanation: 'Bilimsel araştırmalar ve uzay gözlemleri, Dünya\'nın kutuplardan basık, ekvatordan şişkin bir geoid şeklinde olduğunu kanıtlamıştır.'
+          },
+          {
+            type: 'çıkarım',
+            typeLabel: '💡 Çıkarım Yapma',
+            typeColor: 'bg-orange-100 text-orange-700',
+            question: 'Bir öğrenci fizik ve kimya derslerinde başarılıysa, STEAM\'in hangi alanında güçlü olduğu söylenebilir?',
+            options: ['Sanat', 'Bilim', 'Mühendislik', 'Matematik'],
+            correct: 1,
+            explanation: 'Fizik ve kimya, bilimin alt dallarıdır. Bu derslerde başarılı olan bir öğrenci, STEAM\'in Bilim (Science) alanında güçlüdür.'
+          }
+        ]
+      },
+      technology: {
+        id: 'technology',
+        name: 'Teknoloji (Technology)',
+        shortName: 'Teknoloji',
+        letter: 'T',
+        emoji: '💻',
+        color: 'green',
+        gradient: 'from-green-400 to-green-600',
+        bgLight: 'bg-green-50',
+        textColor: 'text-green-700',
+        description: 'Bilimsel bilgiyi pratik amaçlar için kullanma ve araçlar geliştirme.',
+        subComponents: ['Yazılım', 'Donanım', 'Robotik', 'Yapay Zekâ', 'İnternet Teknolojileri'],
+        badge: { name: 'Teknoloji Uzmanı', emoji: '💻' },
+        questions: [
+          {
+            type: 'tanımlama',
+            typeLabel: '📖 Tanımlama',
+            typeColor: 'bg-blue-100 text-blue-700',
+            question: 'Teknoloji nedir?',
+            options: ['Boş zamanlarda dijital oyunlar oynamaktır', 'Bilgiyi pratik amaçlar için kullanmaktır', 'Sadece bilgisayar ve telefon kullanmaktır', 'Gün boyu televizyon ve video izlemektir'],
+            correct: 1,
+            explanation: 'Teknoloji, bilimsel bilgiyi pratik amaçlar için kullanma ve hayatımızı kolaylaştıran araçlar geliştirme sürecidir.'
+          },
+          {
+            type: '5N1K',
+            typeLabel: '❓ 5N1K Sorusu',
+            typeColor: 'bg-green-100 text-green-700',
+            question: 'Yazılım geliştiriciler HANGİ dilleri kullanır?',
+            options: ['Görsel tasarım ve resim dillerini', 'Yalnızca karmaşık hesap formüllerini', 'Python ve Java gibi programlama dillerini', 'Temel seviyede İngilizce ve Türkçe dillerini'],
+            correct: 2,
+            explanation: 'Yazılım geliştiriciler Python, Java, C++ gibi programlama dillerini kullanarak bilgisayar programları ve uygulamalar oluşturur.'
+          },
+          {
+            type: 'bilgi_toplama',
+            typeLabel: '📚 Bilgi Toplama',
+            typeColor: 'bg-purple-100 text-purple-700',
+            question: 'Aşağıdakilerden hangisi teknolojinin alt bileşenidir?',
+            options: ['Yüzme sporu', 'Resim yapma', 'Robotik alanı', 'Dans eğitimi'],
+            correct: 2,
+            explanation: 'Robotik, teknolojinin önemli alt bileşenlerinden biridir. Robotlar tasarlamak ve programlamak teknoloji alanına girer.'
+          },
+          {
+            type: 'değerlendirme',
+            typeLabel: '⚖️ Değerlendirme',
+            typeColor: 'bg-yellow-100 text-yellow-700',
+            question: '"Yapay zekâ sadece filmlerde vardır" bilgisi doğru mudur?',
+            options: ['Sadece bazı kurgu filmlerinde bulunur', 'Henüz icat edilmedi ve gelecekte olacak', 'Hayır, günlük hayatta sıkça kullanılıyor', 'Evet, gerçek dünyada hiç bulunmuyor'],
+            correct: 2,
+            explanation: 'Yapay zekâ günümüzde telefonlardaki sesli asistanlardan, öneri sistemlerine kadar birçok alanda aktif olarak kullanılmaktadır.'
+          },
+          {
+            type: 'çıkarım',
+            typeLabel: '💡 Çıkarım Yapma',
+            typeColor: 'bg-orange-100 text-orange-700',
+            question: 'Bir robot hem hareket edebiliyor hem de komutları anlayabiliyorsa, hangi teknoloji alanları bir arada çalışıyordur?',
+            options: ['Yalnızca yazılım sistemleri', 'Sadece donanım parçaları', 'Robotik ve yapay zekâ', 'Sadece mekanik aksamlar'],
+            correct: 2,
+            explanation: 'Hareket için robotik (mekanik + elektronik), komut anlama için yapay zekâ gerekir. Bu iki alan birlikte çalışarak akıllı robotlar oluşturur.'
+          }
+        ]
+      },
+      engineering: {
+        id: 'engineering',
+        name: 'Mühendislik (Engineering)',
+        shortName: 'Mühendislik',
+        letter: 'E',
+        emoji: '⚙️',
+        color: 'yellow',
+        gradient: 'from-yellow-400 to-orange-500',
+        bgLight: 'bg-yellow-50',
+        textColor: 'text-yellow-700',
+        description: 'Problemlere çözüm üretmek için bilim ve matematiği kullanarak tasarım yapma.',
+        subComponents: ['İnşaat Mühendisliği', 'Makine Mühendisliği', 'Elektrik Mühendisliği', 'Yazılım Mühendisliği', 'Çevre Mühendisliği'],
+        badge: { name: 'Mühendis Adayı', emoji: '⚙️' },
+        questions: [
+          {
+            type: 'tanımlama',
+            typeLabel: '📖 Tanımlama',
+            typeColor: 'bg-blue-100 text-blue-700',
+            question: 'Mühendislik nedir?',
+            options: ['Sadece büyük ve yüksek binalar inşa etmektir', 'Sorunlara çözüm üreten tasarımlar yapmaktır', 'Gelişmiş cihazları ve arabaları kullanmaktır', 'Bozulan araç ve makineleri tamir etmektir'],
+            correct: 1,
+            explanation: 'Mühendislik, bilim ve matematiği kullanarak problemlere yaratıcı çözümler üretme ve tasarım yapma sürecidir.'
+          },
+          {
+            type: '5N1K',
+            typeLabel: '❓ 5N1K Sorusu',
+            typeColor: 'bg-green-100 text-green-700',
+            question: 'Bir köprü tasarlarken mühendisler NELERE dikkat eder?',
+            options: ['Sadece dış görünümünün güzel olmasına', 'Dayanıklılık, güvenlik ve uygun maliyete', 'Kullanılan boyanın rengi ve kalitesine', 'Yapının sadece fiziksel dış boyutlarına'],
+            correct: 1,
+            explanation: 'Mühendisler köprü tasarlarken dayanıklılık, güvenlik, maliyet, çevresel etki ve kullanım amacı gibi birçok faktörü değerlendirir.'
+          },
+          {
+            type: 'bilgi_toplama',
+            typeLabel: '📚 Bilgi Toplama',
+            typeColor: 'bg-purple-100 text-purple-700',
+            question: 'Aşağıdakilerden hangisi mühendislik dalı DEĞİLDİR?',
+            options: ['İnşaat Mühendisliği', 'Makine Mühendisliği', 'Tarih Mühendisliği', 'Yazılım Mühendisliği'],
+            correct: 2,
+            explanation: 'Tarih Mühendisliği diye bir dal yoktur. Tarih sosyal bilimler alanına girer. Mühendislik dalları teknik ve uygulamalı alanlardır.'
+          },
+          {
+            type: 'değerlendirme',
+            typeLabel: '⚖️ Değerlendirme',
+            typeColor: 'bg-yellow-100 text-yellow-700',
+            question: '"Mühendisler sadece matematik bilmeli, yaratıcılığa gerek yok" ifadesi doğru mudur?',
+            options: ['Evet, sadece sıkıcı hesaplamalar yaparlar', 'Hayır, analitik düşünce ve yaratıcılık şarttır', 'Mühendislerin matematik bilmesine gerek yoktur', 'Yaratıcılık mühendislik projeleri için zararlıdır'],
+            correct: 1,
+            explanation: 'Mühendislik hem analitik düşünme hem de yaratıcılık gerektirir. Yeni çözümler üretmek için yaratıcı düşünce şarttır.'
+          },
+          {
+            type: 'çıkarım',
+            typeLabel: '💡 Çıkarım Yapma',
+            typeColor: 'bg-orange-100 text-orange-700',
+            question: 'Depreme dayanıklı bina yapabilen bir mühendis hangi bilgileri kullanmış olabilir?',
+            options: ['Sadece ileri düzey görsel sanat yeteneği', 'Fizik, matematik ve genel malzeme bilimi', 'Geçmiş medeniyetlere ait derin tarih bilgisi', 'Yer şekillerini inceleyen coğrafya uzmanlığı'],
+            correct: 1,
+            explanation: 'Depreme dayanıklı bina için fizik (kuvvetler), matematik (hesaplamalar) ve malzeme bilimi (dayanıklı malzemeler) bilgisi gerekir.'
+          }
+        ]
+      },
+      arts: {
+        id: 'arts',
+        name: 'Sanat (Arts)',
+        shortName: 'Sanat',
+        letter: 'A',
+        emoji: '🎨',
+        color: 'pink',
+        gradient: 'from-pink-400 to-rose-500',
+        bgLight: 'bg-pink-50',
+        textColor: 'text-pink-700',
+        description: 'Yaratıcılık, estetik ve tasarım yoluyla kendini ifade etme.',
+        subComponents: ['Görsel Sanatlar', 'Müzik', 'Tasarım', 'Drama', 'El Sanatları'],
+        badge: { name: 'Yaratıcı Sanatçı', emoji: '🎨' },
+        questions: [
+          {
+            type: 'tanımlama',
+            typeLabel: '📖 Tanımlama',
+            typeColor: 'bg-blue-100 text-blue-700',
+            question: 'STEAM\'deki "A" harfi neden önemlidir?',
+            options: ['Projeler için tamamen gereksiz bir detaydır', 'Tasarımlara yaratıcılık ve estetik değer katar', 'Sadece ürünlerin dış görünüşünü süslemek içindir', 'STEAM yaklaşımında A harfi ve sanat alanı yer almaz'],
+            correct: 1,
+            explanation: 'A (Arts/Sanat) yaratıcılık, estetik düşünce ve tasarım becerisi katar. Bu sayede bilimsel projeler hem işlevsel hem de güzel olur.'
+          },
+          {
+            type: '5N1K',
+            typeLabel: '❓ 5N1K Sorusu',
+            typeColor: 'bg-green-100 text-green-700',
+            question: 'Tasarımcılar ürün tasarlarken NASIL düşünür?',
+            options: ['Tamamen plansız ve rastgele bir şekilde', 'Kullanıcı ihtiyaçlarına odaklı ve yaratıcı', 'Sadece en ucuz malzemeleri kullanacak şekilde', 'Kullanım kolaylığını hiç dikkate almayarak'],
+            correct: 1,
+            explanation: 'Tasarımcılar kullanıcı ihtiyaçlarını düşünerek, yaratıcı ve estetik çözümler üretir. Bu yaklaşıma "kullanıcı odaklı tasarım" denir.'
+          },
+          {
+            type: 'bilgi_toplama',
+            typeLabel: '📚 Bilgi Toplama',
+            typeColor: 'bg-purple-100 text-purple-700',
+            question: 'Aşağıdakilerden hangisi sanatın alt bileşenidir?',
+            options: ['Kimya deneyi', 'Görsel sanatlar', 'Matematik problemi', 'Fizik formülü'],
+            correct: 1,
+            explanation: 'Görsel sanatlar (resim, heykel, grafik tasarım) sanatın önemli alt bileşenlerindendir.'
+          },
+          {
+            type: 'değerlendirme',
+            typeLabel: '⚖️ Değerlendirme',
+            typeColor: 'bg-yellow-100 text-yellow-700',
+            question: '"STEM yeterli, sanata gerek yok" görüşü doğru mudur?',
+            options: ['Evet, bilimsel projelerde sanat tamamen gereksizdir', 'Hayır, sanat projelere estetik ve yaratıcılık katar', 'Sanat sadece boş zamanları değerlendiren bir eğlencedir', 'STEM ve sanat tamamen aynı şeyleri ifade etmektedir'],
+            correct: 1,
+            explanation: 'Sanat, STEM\'e yaratıcılık, estetik ve farklı bakış açısı katar. Bu yüzden STEAM yaklaşımı daha bütüncül ve etkilidir.'
+          },
+          {
+            type: 'çıkarım',
+            typeLabel: '💡 Çıkarım Yapma',
+            typeColor: 'bg-orange-100 text-orange-700',
+            question: 'Bir telefon hem kullanışlı hem de güzel tasarlandıysa, hangi STEAM alanları birlikte çalışmıştır?',
+            options: ['Yalnızca donanım odaklı çalışan mühendislik', 'İşlevsel teknoloji ve estetik odaklı sanat', 'Sadece karmaşık ve ileri düzey matematik', 'Temel kurallara sahip olan uygulamalı bilim'],
+            correct: 1,
+            explanation: 'Kullanışlılık için teknoloji/mühendislik, güzel tasarım için sanat gerekir. En iyi ürünler bu alanların birleşimiyle ortaya çıkar.'
+          }
+        ]
+      },
+      mathematics: {
+        id: 'mathematics',
+        name: 'Matematik (Mathematics)',
+        shortName: 'Matematik',
+        letter: 'M',
+        emoji: '🔢',
+        color: 'purple',
+        gradient: 'from-purple-400 to-indigo-600',
+        bgLight: 'bg-purple-50',
+        textColor: 'text-purple-700',
+        description: 'Sayılar, şekiller ve mantıksal ilişkiler üzerine çalışma.',
+        subComponents: ['Aritmetik', 'Geometri', 'Cebir', 'İstatistik', 'Olasılık'],
+        badge: { name: 'Matematik Dehası', emoji: '🔢' },
+        questions: [
+          {
+            type: 'tanımlama',
+            typeLabel: '📖 Tanımlama',
+            typeColor: 'bg-blue-100 text-blue-700',
+            question: 'STEAM\'de matematik neden temel bir disiplindir?',
+            options: ['Diğer alanlara göre tamamen önemsizdir', 'Diğer tüm bilimsel alanların temelini oluşturur', 'Sadece günlük hayatta nesneleri saymak içindir', 'Matematik STEAM kavramının içerisinde yer almaz'],
+            correct: 1,
+            explanation: 'Matematik, bilim, teknoloji ve mühendisliğin temelini oluşturur. Hesaplamalar, modeller ve analizler için matematik şarttır.'
+          },
+          {
+            type: '5N1K',
+            typeLabel: '❓ 5N1K Sorusu',
+            typeColor: 'bg-green-100 text-green-700',
+            question: 'Mühendisler bir bina tasarlarken matematik NE İÇİN kullanır?',
+            options: ['Tasarım sürecinde matematiği hiç kullanmazlar', 'Dayanıklılık hesaplamaları ve hassas ölçümler için', 'Sadece dış cephede kullanılan süslemeler yapmak için', 'Yalnızca iç mekan boya renklerinin ideal seçimi için'],
+            correct: 1,
+            explanation: 'Mühendisler matematiği dayanıklılık hesaplamaları, ölçümler, maliyet analizi ve yapısal tasarım için kullanır.'
+          },
+          {
+            type: 'bilgi_toplama',
+            typeLabel: '📚 Bilgi Toplama',
+            typeColor: 'bg-purple-100 text-purple-700',
+            question: 'Aşağıdakilerden hangisi matematiğin alt bileşenidir?',
+            options: ['Biyoloji', 'Geometri', 'Kimya', 'Fizik'],
+            correct: 1,
+            explanation: 'Geometri, matematiğin şekiller, açılar ve uzaysal ilişkilerle ilgilenen önemli bir alt dalıdır.'
+          },
+          {
+            type: 'değerlendirme',
+            typeLabel: '⚖️ Değerlendirme',
+            typeColor: 'bg-yellow-100 text-yellow-700',
+            question: '"Matematik sadece okul dersi, gerçek hayatta kullanılmaz" ifadesi doğru mu?',
+            options: ['Evet, sadece okulda ders geçmek için öğrenilir', 'Hayır, bilimden teknolojiye pek çok alanda kullanılır', 'Sadece bankalarda çalışan finansmanlar kullanır', 'Sadece okullarda eğitim veren öğretmenler kullanır'],
+            correct: 1,
+            explanation: 'Matematik her alanda kullanılır: alışveriş, yemek tarifi, inşaat, teknoloji, tıp, spor ve daha pek çok günlük aktivite.'
+          },
+          {
+            type: 'çıkarım',
+            typeLabel: '💡 Çıkarım Yapma',
+            typeColor: 'bg-orange-100 text-orange-700',
+            question: 'Bir video oyunu geliştirmek için hangi matematik alanları gereklidir?',
+            options: ['Oyun geliştirmede herhangi bir matematik gerekmez', 'Geometri, ileri düzey cebir ve fizik matematiği', 'Yalnızca basit toplama ve çıkarma işlem yeteneği', 'Sadece ilkokulda öğrenilmiş olan çarpım tablosu'],
+            correct: 1,
+            explanation: 'Video oyunları için geometri (3D modeller), cebir (hesaplamalar), fizik matematiği (hareket, çarpışma) ve olasılık (rastgele olaylar) gerekir.'
+          }
+        ]
+      }
+    };
+
+    // Oyun Durumu
+    let gameState = {
+      playerName: '',
+      currentLevel: 1,
+      totalScore: 0,
+      completedDisciplines: [],
+      badges: [],
+      currentDiscipline: null,
+      currentQuestionIndex: 0,
+      disciplineScore: 0
+    };
+
+    let savedProgress = null;
+
+    // Konfigürasyon
+    const defaultConfig = {
+      game_title: 'STEAM Keşif Oyunu',
+      welcome_message: 'STEAM dünyasına hoş geldin!',
+      primary_color: '#6366f1',
+      secondary_color: '#8b5cf6',
+      background_color: '#1e1b4b',
+      text_color: '#ffffff',
+      accent_color: '#f472b6'
+    };
+
+    let config = { ...defaultConfig };
+
+    // Element SDK Başlatma
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange: async (newConfig) => {
+          config = { ...defaultConfig, ...newConfig };
+          applyConfig();
+        },
+        mapToCapabilities: (cfg) => ({
+          recolorables: [
+            {
+              get: () => cfg.primary_color || defaultConfig.primary_color,
+              set: (value) => { cfg.primary_color = value; window.elementSdk.setConfig({ primary_color: value }); }
+            },
+            {
+              get: () => cfg.secondary_color || defaultConfig.secondary_color,
+              set: (value) => { cfg.secondary_color = value; window.elementSdk.setConfig({ secondary_color: value }); }
+            },
+            {
+              get: () => cfg.background_color || defaultConfig.background_color,
+              set: (value) => { cfg.background_color = value; window.elementSdk.setConfig({ background_color: value }); }
+            },
+            {
+              get: () => cfg.text_color || defaultConfig.text_color,
+              set: (value) => { cfg.text_color = value; window.elementSdk.setConfig({ text_color: value }); }
+            },
+            {
+              get: () => cfg.accent_color || defaultConfig.accent_color,
+              set: (value) => { cfg.accent_color = value; window.elementSdk.setConfig({ accent_color: value }); }
+            }
+          ],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (cfg) => new Map([
+          ['game_title', cfg.game_title || defaultConfig.game_title],
+          ['welcome_message', cfg.welcome_message || defaultConfig.welcome_message]
+        ])
+      });
+    }
+
+    function applyConfig() {
+      const title = document.getElementById('main-title');
+      const welcome = document.getElementById('welcome-text');
+
+      if (title) title.textContent = config.game_title || defaultConfig.game_title;
+      if (welcome) welcome.textContent = config.welcome_message || defaultConfig.welcome_message;
+    }
+
+    // Data SDK Handler
+    const dataHandler = {
+      onDataChanged(data) {
+        if (data && data.length > 0) {
+          const latest = data[data.length - 1];
+          savedProgress = latest;
+
+          const continueSection = document.getElementById('continue-section');
+          const playerInput = document.getElementById('player-name');
+
+          if (continueSection && latest.player_name) {
+            continueSection.classList.remove('hidden');
+            if (playerInput) playerInput.value = latest.player_name;
+          }
+        }
+      }
+    };
+
+    // Data SDK Başlatma
+    async function initDataSdk() {
+      if (window.dataSdk) {
+        const result = await window.dataSdk.init(dataHandler);
+        if (!result.isOk) {
+          console.error('Data SDK başlatılamadı');
+        }
+      }
+    }
+
+    initDataSdk();
+
+    // Progress Kaydetme
+    async function saveProgress() {
+      if (!window.dataSdk) return;
+
+      const progressData = {
+        player_name: gameState.playerName,
+        current_level: gameState.currentLevel,
+        total_score: gameState.totalScore,
+        completed_disciplines: JSON.stringify(gameState.completedDisciplines),
+        badges: JSON.stringify(gameState.badges),
+        created_at: new Date().toISOString()
+      };
+
+      if (savedProgress && savedProgress.__backendId) {
+        const updated = { ...savedProgress, ...progressData };
+        await window.dataSdk.update(updated);
+      } else {
+        await window.dataSdk.create(progressData);
+      }
+    }
+
+    // Disiplin Kartlarını Oluştur
+    function renderDisciplineCards() {
+      const container = document.getElementById('discipline-select');
+      container.innerHTML = '';
+
+      Object.values(steamDisciplines).forEach((discipline, index) => {
+        const isCompleted = gameState.completedDisciplines.includes(discipline.id);
+        const isLocked = index > gameState.completedDisciplines.length;
+
+        const card = document.createElement('div');
+        card.className = `discipline-card rounded-2xl p-6 cursor-pointer transition-all ${isLocked ? 'opacity-50' : ''} ${isCompleted ? 'ring-4 ring-emerald-400' : ''} bg-gradient-to-br ${discipline.gradient}`;
+        card.style.animationDelay = `${index * 0.1}s`;
+        card.classList.add('slide-up');
+
+        card.innerHTML = `
+          <div class="flex items-start justify-between mb-4">
+            <div class="text-4xl ${discipline.bgLight} w-16 h-16 rounded-xl flex items-center justify-center shadow-lg overflow-hidden bg-white/95 p-1 border-2 border-white/20">
+              <img src="${index + 1}.png" class="w-full h-full object-contain mix-blend-multiply drop-shadow-sm" alt="${discipline.name}">
+            </div>
+            ${isCompleted ? '<span class="text-2xl">✅</span>' : isLocked ? '<i data-lucide="lock" class="w-6 h-6 text-white/50"></i>' : '<i data-lucide="play-circle" class="w-6 h-6 text-white"></i>'}
+          </div>
+          <h3 class="text-lg font-bold text-white mb-1">${discipline.name}</h3>
+          <p class="text-sm text-white/80 mb-3">${discipline.description}</p>
+          <div class="flex flex-wrap gap-1">
+            ${discipline.subComponents.slice(0, 3).map(sub => `<span class="text-xs px-2 py-1 ${discipline.bgLight} ${discipline.textColor} rounded-full">${sub}</span>`).join('')}
+            ${discipline.subComponents.length > 3 ? `<span class="text-xs px-2 py-1 bg-white/20 text-white rounded-full">+${discipline.subComponents.length - 3}</span>` : ''}
+          </div>
+        `;
+
+        if (!isLocked) {
+          card.addEventListener('click', () => startDiscipline(discipline.id));
+        }
+
+        container.appendChild(card);
+      });
+
+      lucide.createIcons();
+    }
+
+    // Disipline Başla
+    function startDiscipline(disciplineId) {
+      gameState.currentDiscipline = steamDisciplines[disciplineId];
+      gameState.currentQuestionIndex = 0;
+      gameState.disciplineScore = 0;
+
+      document.getElementById('discipline-select').classList.add('hidden');
+      document.getElementById('question-area').classList.remove('hidden');
+
+      showQuestion();
+    }
+
+    // Soru Göster
+    function showQuestion() {
+      const discipline = gameState.currentDiscipline;
+      const questionData = discipline.questions[gameState.currentQuestionIndex];
+
+      // Cevapları karıştır
+      const shuffled = shuffleOptions(questionData);
+      const question = { ...questionData, options: shuffled.options, correct: shuffled.correct };
+
+      document.getElementById('question-discipline').textContent = `${discipline.emoji} ${discipline.shortName}`;
+      document.getElementById('question-counter').textContent = `Soru ${gameState.currentQuestionIndex + 1}/${discipline.questions.length}`;
+
+      const typeBadge = document.getElementById('question-type-badge');
+      typeBadge.className = `mb-4 inline-block px-3 py-1 rounded-lg text-xs font-semibold ${question.typeColor}`;
+      typeBadge.textContent = question.typeLabel;
+
+      document.getElementById('question-text').textContent = question.question;
+
+      const optionsContainer = document.getElementById('question-options');
+      optionsContainer.innerHTML = '';
+
+      question.options.forEach((option, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'question-option w-full p-3 md:p-4 rounded-xl border-2 border-gray-200 bg-white text-left font-medium text-gray-700 hover:border-indigo-400 hover:bg-indigo-50 text-sm md:text-base touch-target';
+        btn.innerHTML = `<span class="inline-flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full bg-gray-100 text-gray-600 font-bold mr-2 md:mr-3 text-sm md:text-base">${String.fromCharCode(65 + index)}</span>${option}`;
+        btn.addEventListener('click', () => checkAnswer(index, question));
+        optionsContainer.appendChild(btn);
+      });
+
+      document.getElementById('feedback-area').classList.add('hidden');
+      document.getElementById('next-question-btn').classList.add('hidden');
+      document.getElementById('back-to-disciplines-btn').classList.add('hidden');
+    }
+
+    // Cevabı Kontrol Et
+    function checkAnswer(selectedIndex, question) {
+      const isCorrect = selectedIndex === question.correct;
+
+      const options = document.querySelectorAll('.question-option');
+      options.forEach((btn, index) => {
+        btn.disabled = true;
+        if (index === question.correct) {
+          btn.classList.add('correct');
+        } else if (index === selectedIndex && !isCorrect) {
+          btn.classList.add('incorrect');
+        }
+      });
+
+      const feedbackArea = document.getElementById('feedback-area');
+      const feedbackText = document.getElementById('feedback-text');
+      const feedbackExplanation = document.getElementById('feedback-explanation');
+
+      feedbackArea.classList.remove('hidden');
+
+      if (isCorrect) {
+        feedbackArea.className = 'mb-6 p-4 rounded-xl bg-emerald-100 text-emerald-800';
+        feedbackText.textContent = '🎉 Doğru cevap!';
+        gameState.disciplineScore += 20;
+        gameState.totalScore += 20;
+      } else {
+        feedbackArea.className = 'mb-6 p-4 rounded-xl bg-red-100 text-red-800';
+        feedbackText.textContent = '😔 Yanlış cevap';
+      }
+
+      feedbackExplanation.textContent = question.explanation;
+
+      updateScoreDisplay();
+
+      if (gameState.currentQuestionIndex < gameState.currentDiscipline.questions.length - 1) {
+        document.getElementById('next-question-btn').classList.remove('hidden');
+      } else {
+        setTimeout(() => completeDiscipline(), 1500);
+      }
+    }
+
+    // Sonraki Soru
+    function nextQuestion() {
+      gameState.currentQuestionIndex++;
+      showQuestion();
+    }
+
+    // Disiplini Tamamla
+    function completeDiscipline() {
+      const discipline = gameState.currentDiscipline;
+
+      if (!gameState.completedDisciplines.includes(discipline.id)) {
+        gameState.completedDisciplines.push(discipline.id);
+        gameState.badges.push(discipline.badge);
+        gameState.currentLevel = gameState.completedDisciplines.length + 1;
+      }
+
+      document.getElementById('question-area').classList.add('hidden');
+
+      // Tüm disiplinler tamamlandı mı?
+      if (gameState.completedDisciplines.length >= 5) {
+        showFinalScreen();
+      } else {
+        showCompletionScreen(discipline);
+      }
+
+      saveProgress();
+    }
+
+    // Tamamlama Ekranı
+    function showCompletionScreen(discipline) {
+      const disciplineIndex = Object.values(steamDisciplines).findIndex(d => d.id === discipline.id);
+      document.getElementById('completion-area').classList.remove('hidden');
+      document.getElementById('completion-emoji').innerHTML = `<div class="w-32 h-32 mx-auto bg-white/90 rounded-[2rem] flex items-center justify-center p-2 shadow-xl border-4 border-indigo-100"><img src="${disciplineIndex + 1}.png" class="w-full h-full object-contain mix-blend-multiply"></div>`;
+      document.getElementById('completion-title').textContent = `${discipline.shortName} Tamamlandı!`;
+      document.getElementById('completion-message').textContent = `${discipline.name} disiplinini başarıyla tamamladın. Bu alandaki alt bileşenleri ve önemini öğrendin.`;
+      document.getElementById('badge-emoji').textContent = discipline.badge.emoji;
+      document.getElementById('badge-name').textContent = discipline.badge.name;
+
+      showToast(`${discipline.badge.emoji} ${discipline.badge.name}`, 'Yeni rozet kazandın!');
+      createConfetti();
+
+      updateUI();
+    }
+
+    // Final Ekranı
+    function showFinalScreen() {
+      document.getElementById('completion-area').classList.add('hidden');
+      document.getElementById('final-area').classList.remove('hidden');
+      document.getElementById('final-score').textContent = gameState.totalScore;
+
+      const badgesContainer = document.getElementById('all-badges');
+      badgesContainer.innerHTML = gameState.badges.map(badge => `
+        <div class="badge inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-indigo-100 to-purple-100 shadow-md">
+          <span class="text-xl">${badge.emoji}</span>
+          <span class="font-semibold text-gray-700">${badge.name}</span>
+        </div>
+      `).join('');
+
+      createConfetti();
+    }
+
+    // Konfeti Efekti
+    function createConfetti() {
+      const colors = ['#6366f1', '#8b5cf6', '#ec4899', '#10b981', '#f59e0b'];
+      const container = document.getElementById('confetti-container') || document.body;
+
+      for (let i = 0; i < 20; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti-piece';
+        confetti.style.left = `${Math.random() * 100}%`;
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.width = '10px';
+        confetti.style.height = '10px';
+        confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+        confetti.style.animationDelay = `${Math.random() * 0.5}s`;
+        container.appendChild(confetti);
+
+        setTimeout(() => confetti.remove(), 1500);
+      }
+    }
+
+    // Toast Göster
+    function showToast(title, message) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-title').textContent = title;
+      document.getElementById('toast-message').textContent = message;
+
+      toast.classList.remove('translate-y-full', 'opacity-0');
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-full', 'opacity-0');
+      }, 3000);
+    }
+
+    // UI Güncelle
+    function updateUI() {
+      document.getElementById('player-display').textContent = gameState.playerName;
+      document.getElementById('player-initial').textContent = gameState.playerName.charAt(0).toUpperCase();
+      updateScoreDisplay();
+      updateProgressBar();
+    }
+
+    function updateScoreDisplay() {
+      document.getElementById('score-display').textContent = gameState.totalScore;
+      document.getElementById('badges-count').textContent = gameState.badges.length;
+      document.getElementById('current-level').textContent = gameState.currentLevel;
+    }
+
+    function updateProgressBar() {
+      const progress = (gameState.completedDisciplines.length / 5) * 100;
+      document.getElementById('progress-bar').style.width = `${progress}%`;
+      document.getElementById('progress-text').textContent = `${gameState.completedDisciplines.length}/5 Disiplin`;
+    }
+
+    // Disiplinlere Dön
+    function backToDisciplines() {
+      document.getElementById('question-area').classList.add('hidden');
+      document.getElementById('completion-area').classList.add('hidden');
+      document.getElementById('discipline-select').classList.remove('hidden');
+      renderDisciplineCards();
+    }
+
+    // Ana Menüye Dön
+    function goHome() {
+      document.getElementById('game-screen').classList.add('hidden');
+      document.getElementById('home-screen').classList.remove('hidden');
+    }
+
+    // Oyunu Başlat
+    function startGame(isNewGame = true) {
+      const playerName = document.getElementById('player-name').value.trim();
+
+      if (!playerName) {
+        document.getElementById('player-name').classList.add('ring-2', 'ring-red-400');
+        setTimeout(() => document.getElementById('player-name').classList.remove('ring-2', 'ring-red-400'), 2000);
+        return;
+      }
+
+      if (isNewGame || !savedProgress) {
+        gameState = {
+          playerName: playerName,
+          currentLevel: 1,
+          totalScore: 0,
+          completedDisciplines: [],
+          badges: [],
+          currentDiscipline: null,
+          currentQuestionIndex: 0,
+          disciplineScore: 0
+        };
+      } else {
+        gameState = {
+          playerName: savedProgress.player_name,
+          currentLevel: savedProgress.current_level,
+          totalScore: savedProgress.total_score,
+          completedDisciplines: JSON.parse(savedProgress.completed_disciplines || '[]'),
+          badges: JSON.parse(savedProgress.badges || '[]'),
+          currentDiscipline: null,
+          currentQuestionIndex: 0,
+          disciplineScore: 0
+        };
+      }
+
+      document.getElementById('home-screen').classList.add('hidden');
+      document.getElementById('game-screen').classList.remove('hidden');
+      document.getElementById('discipline-select').classList.remove('hidden');
+      document.getElementById('question-area').classList.add('hidden');
+      document.getElementById('completion-area').classList.add('hidden');
+      document.getElementById('final-area').classList.add('hidden');
+
+      updateUI();
+      renderDisciplineCards();
+      saveProgress();
+    }
+
+    // Oyunu Yeniden Başlat
+    function restartGame() {
+      savedProgress = null;
+      document.getElementById('final-area').classList.add('hidden');
+      document.getElementById('game-screen').classList.add('hidden');
+      document.getElementById('home-screen').classList.remove('hidden');
+      document.getElementById('continue-section').classList.add('hidden');
+      document.getElementById('player-name').value = '';
+    }
+
+    // Modal Event Listeners
+    const howToPlayBtn = document.getElementById('how-to-play-btn');
+    const howToPlayModal = document.getElementById('how-to-play-modal');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    const modalContent = howToPlayModal.querySelector('.glass-card');
+
+    howToPlayBtn.addEventListener('click', () => {
+      howToPlayModal.classList.remove('hidden');
+      setTimeout(() => {
+        howToPlayModal.classList.remove('opacity-0');
+        modalContent.classList.remove('scale-95');
+      }, 10);
+    });
+
+    function closeModal() {
+      howToPlayModal.classList.add('opacity-0');
+      modalContent.classList.add('scale-95');
+      setTimeout(() => {
+        howToPlayModal.classList.add('hidden');
+      }, 300);
+    }
+
+    closeModalBtn.addEventListener('click', closeModal);
+    howToPlayModal.addEventListener('click', (e) => {
+      if (e.target === howToPlayModal) closeModal();
+    });
+
+    // Event Listeners
+    document.getElementById('start-btn').addEventListener('click', () => startGame(true));
+    document.getElementById('continue-btn').addEventListener('click', () => startGame(false));
+    document.getElementById('next-question-btn').addEventListener('click', nextQuestion);
+    document.getElementById('continue-exploring-btn').addEventListener('click', backToDisciplines);
+    document.getElementById('home-btn').addEventListener('click', goHome);
+    document.getElementById('restart-btn').addEventListener('click', restartGame);
+    document.getElementById('twin-btn').addEventListener('click', () => {
+      window.location.href = 'https://www.twinscience.com/tr/';
+    });
+
+    // Enter tuşu ile başla
+    document.getElementById('player-name').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') startGame(true);
+    });
+
+    // Sayfa yüklendiğinde
+    applyConfig();
+    lucide.createIcons();
+  </script>
+  <script>(function () { function c() { var b = a.contentDocument || a.contentWindow.document; if (b) { var d = b.createElement('script'); d.innerHTML = "window.__CF$cv$params={r:'9d880e5781a36e07',t:'MTc3Mjg3MDMxNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);"; b.getElementsByTagName('head')[0].appendChild(d) } } if (document.body) { var a = document.createElement('iframe'); a.height = 1; a.width = 1; a.style.position = 'absolute'; a.style.top = 0; a.style.left = 0; a.style.border = 'none'; a.style.visibility = 'hidden'; document.body.appendChild(a); if ('loading' !== document.readyState) c(); else if (window.addEventListener) document.addEventListener('DOMContentLoaded', c); else { var e = document.onreadystatechange || function () { }; document.onreadystatechange = function (b) { e(b); 'loading' !== document.readyState && (document.onreadystatechange = e, c()) } } } })();</script>
+</body>
+
+</html>
